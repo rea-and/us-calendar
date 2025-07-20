@@ -200,16 +200,31 @@ systemctl restart nginx
 # Set up SSL certificate
 echo "🔒 Setting up SSL certificate..."
 if command -v certbot &> /dev/null; then
-    echo "📋 Obtaining SSL certificate for carlaveto.net..."
-    certbot --nginx -d carlaveto.net --non-interactive --agree-tos --email admin@carlaveto.net
-    
-    if [ $? -eq 0 ]; then
-        echo "✅ SSL certificate obtained successfully"
-        echo "🔄 Restarting nginx with SSL configuration..."
-        systemctl restart nginx
+    echo "📋 Checking DNS resolution for carlaveto.net..."
+    if nslookup carlaveto.net >/dev/null 2>&1; then
+        echo "✅ DNS resolution successful"
+        echo "📋 Obtaining SSL certificate for carlaveto.net..."
+        certbot --nginx -d carlaveto.net --non-interactive --agree-tos --email admin@carlaveto.net
+        
+        if [ $? -eq 0 ]; then
+            echo "✅ SSL certificate obtained successfully"
+            echo "🔄 Restarting nginx with SSL configuration..."
+            systemctl restart nginx
+        else
+            echo "⚠️  SSL certificate setup failed. Site will run on HTTP only."
+            echo "💡 Common issues:"
+            echo "   - DNS not pointing to this server"
+            echo "   - Port 80 not accessible from internet"
+            echo "   - Domain not registered or expired"
+            echo "💡 You can manually run: certbot --nginx -d carlaveto.net"
+        fi
     else
-        echo "⚠️  SSL certificate setup failed. Site will run on HTTP only."
-        echo "💡 You can manually run: certbot --nginx -d carlaveto.net"
+        echo "❌ DNS resolution failed for carlaveto.net"
+        echo "💡 Please ensure:"
+        echo "   1. Domain carlaveto.net is registered"
+        echo "   2. DNS A record points to this server's IP"
+        echo "   3. DNS propagation has completed (can take up to 48 hours)"
+        echo "💡 Site will run on HTTP only until DNS is configured"
     fi
 else
     echo "⚠️  Certbot not available. Site will run on HTTP only."
