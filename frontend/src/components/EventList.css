@@ -1,0 +1,484 @@
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-list.compact {
+  gap: 8px;
+}
+
+.event-list-empty {
+  text-align: center;
+  color: #495057;
+  font-style: italic;
+  padding: 20px;
+}
+
+.event-list-item {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  border-left: 4px solid #007bff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;
+  min-height: 70px;
+}
+
+.event-list-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.event-list-item.event-work {
+  border-left-color: #28a745;
+}
+
+.event-list-item.event-holiday {
+  border-left-color: #ffc107;
+}
+
+.event-list-item.event-other {
+  border-left-color: #6f42c1;
+}
+
+.event-list-content {
+  position: relative;
+  z-index: 2;
+}
+
+.event-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.event-header-indicators {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.event-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.event-user {
+  font-size: 0.8rem;
+  color: #495057;
+  background: #f8f9fa;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.event-user-indicator,
+.event-both-indicator {
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+.event-list-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.event-time {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.event-date {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+.event-hours {
+  font-size: 0.8rem;
+  color: #495057;
+}
+
+.event-description {
+  font-size: 0.9rem;
+  color: #495057;
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Compact mode */
+.event-list.compact .event-list-item {
+  padding: 12px;
+  min-height: 60px;
+}
+
+.event-list.compact .event-title {
+  font-size: 0.9rem;
+}
+
+.event-list.compact .event-user {
+  font-size: 0.7rem;
+  padding: 2px 5px;
+}
+
+.event-list.compact .event-date {
+  font-size: 0.8rem;
+}
+
+.event-list.compact .event-hours {
+  font-size: 0.75rem;
+}
+
+/* Swipe delete functionality */
+.event-list-item.swiped {
+  transform: translateX(-120px);
+}
+
+.event-delete-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: linear-gradient(90deg, transparent, rgba(220, 53, 69, 0.1));
+  z-index: 1;
+}
+
+.event-delete-btn,
+.event-cancel-btn {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+/* Long press delete confirmation */
+.event-list-item.delete-confirm {
+  transform: scale(0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.event-delete-confirm {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 8px;
+}
+
+.delete-confirm-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 280px;
+  width: 90%;
+}
+
+.delete-confirm-content p {
+  margin: 0 0 16px 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.delete-confirm-actions .btn {
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  min-height: 36px;
+}
+
+/* Mobile responsive delete functionality */
+@media (max-width: 768px) {
+  .event-list-item.swiped {
+    transform: translateX(-100px);
+  }
+  
+  .event-delete-overlay {
+    padding: 0 8px;
+    gap: 6px;
+  }
+  
+  .event-delete-btn,
+  .event-cancel-btn {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    min-height: 32px;
+  }
+  
+  .delete-confirm-content {
+    padding: 16px;
+    max-width: 260px;
+  }
+  
+  .delete-confirm-content p {
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+  }
+  
+  .delete-confirm-actions .btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    min-height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-list-item.swiped {
+    transform: translateX(-80px);
+  }
+  
+  .event-delete-overlay {
+    padding: 0 6px;
+    gap: 4px;
+  }
+  
+  .event-delete-btn,
+  .event-cancel-btn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    min-height: 28px;
+  }
+  
+  .delete-confirm-content {
+    padding: 12px;
+    max-width: 240px;
+  }
+  
+  .delete-confirm-content p {
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+  }
+  
+  .delete-confirm-actions {
+    gap: 6px;
+  }
+  
+  .delete-confirm-actions .btn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    min-height: 28px;
+  }
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+  .event-list-item {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  
+  .event-list-item.swiped {
+    transition: transform 0.2s ease;
+  }
+  
+  .event-list-item.delete-confirm {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+}
+
+/* High contrast mode for accessibility */
+@media (prefers-contrast: high) {
+  .event-delete-overlay {
+    background: rgba(220, 53, 69, 0.2);
+  }
+  
+  .delete-confirm-content {
+    border: 2px solid #333;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .event-list-item {
+    transition: none;
+  }
+  
+  .event-list-item.swiped {
+    transition: none;
+  }
+  
+  .event-list-item.delete-confirm {
+    transition: none;
+  }
+} 
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .event-list {
+    gap: 10px;
+  }
+  
+  .event-list-item {
+    padding: 12px;
+    min-height: 60px; /* Better touch target */
+  }
+  
+  .event-list-header {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  
+  .event-user {
+    margin-left: 0;
+    align-self: flex-start;
+    font-size: 0.65rem;
+    padding: 3px 8px;
+  }
+  
+  .event-title {
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+  
+  .event-date {
+    font-size: 0.8rem;
+  }
+  
+  .event-hours {
+    font-size: 0.75rem;
+  }
+  
+  .event-description {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    -webkit-line-clamp: 3;
+  }
+  
+  /* Mobile compact mode */
+  .event-list.compact .event-list-item {
+    padding: 10px;
+    min-height: 50px;
+  }
+  
+  .event-list.compact .event-title {
+    font-size: 0.85rem;
+  }
+  
+  .event-list.compact .event-user {
+    font-size: 0.6rem;
+    padding: 2px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-list-item {
+    padding: 14px;
+    min-height: 65px;
+  }
+  
+  .event-title {
+    font-size: 0.95rem;
+  }
+  
+  .event-user {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+  }
+  
+  .event-date {
+    font-size: 0.85rem;
+  }
+  
+  .event-hours {
+    font-size: 0.8rem;
+  }
+  
+  .event-description {
+    font-size: 0.85rem;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 360px) {
+  .event-list-item {
+    padding: 8px;
+    min-height: 50px;
+  }
+  
+  .event-title {
+    font-size: 0.8rem;
+  }
+  
+  .event-date {
+    font-size: 0.7rem;
+  }
+  
+  .event-hours {
+    font-size: 0.65rem;
+  }
+  
+  .event-description {
+    font-size: 0.7rem;
+  }
+  
+  .event-user {
+    font-size: 0.55rem;
+    padding: 1px 4px;
+  }
+  
+  /* Compact mode for very small screens */
+  .event-list.compact .event-list-item {
+    padding: 6px;
+    min-height: 40px;
+  }
+  
+  .event-list.compact .event-title {
+    font-size: 0.75rem;
+  }
+}
+
+/* Landscape mobile orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+  .event-list-item {
+    padding: 10px;
+    min-height: 50px;
+  }
+  
+  .event-list-header {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .event-user {
+    margin-left: 8px;
+    align-self: center;
+  }
+  
+  .event-list.compact .event-list-item {
+    padding: 8px;
+    min-height: 40px;
+  }
+} 
