@@ -35,13 +35,12 @@ node --version
 npm --version
 nginx -v
 
+# Get the current directory where the script is running from
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Create application directory
 echo "📁 Creating application directory..."
 mkdir -p /var/www/us-calendar
-cd /var/www/us-calendar
-
-# Get the current directory where the script is running from
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Copy application files from the script directory
 echo "📋 Copying application files from $SCRIPT_DIR..."
@@ -52,6 +51,9 @@ else
     echo "❌ Could not find source directory"
     exit 1
 fi
+
+# Change to application directory
+cd /var/www/us-calendar
 
 # Verify files were copied
 echo "📋 Verifying files..."
