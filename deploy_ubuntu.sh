@@ -15,23 +15,61 @@ fi
 echo "📦 Updating system packages..."
 apt update && apt upgrade -y
 
+# Remove conflicting npm package if it exists
+echo "🧹 Removing conflicting npm package..."
+apt remove -y npm 2>/dev/null || true
+
 # Install required packages
 echo "📦 Installing required packages..."
-apt install -y python3 python3-pip python3-venv nodejs npm nginx
+apt install -y python3 python3-pip python3-venv nginx curl
+
+# Install Node.js 18.x from NodeSource
+echo "📦 Installing Node.js 18.x..."
+curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+apt install -y nodejs
+
+# Verify installations
+echo "✅ Verifying installations..."
+python3 --version
+node --version
+npm --version
+nginx -v
 
 # Create application directory
 echo "📁 Creating application directory..."
 mkdir -p /var/www/us-calendar
 cd /var/www/us-calendar
 
-# Copy application files (assuming they're in the current directory)
-echo "📋 Copying application files..."
-cp -r * /var/www/us-calendar/
+# Get the current directory where the script is running from
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Copy application files from the script directory
+echo "📋 Copying application files from $SCRIPT_DIR..."
+if [ -d "$SCRIPT_DIR" ]; then
+    cp -r "$SCRIPT_DIR"/* /var/www/us-calendar/ 2>/dev/null || true
+    cp -r "$SCRIPT_DIR"/.* /var/www/us-calendar/ 2>/dev/null || true
+else
+    echo "❌ Could not find source directory"
+    exit 1
+fi
+
+# Verify files were copied
+echo "📋 Verifying files..."
+if [ ! -f "/var/www/us-calendar/requirements.txt" ]; then
+    echo "❌ requirements.txt not found. Please ensure you're running this script from the project directory."
+    exit 1
+fi
+
+if [ ! -d "/var/www/us-calendar/frontend" ]; then
+    echo "❌ frontend directory not found. Please ensure you're running this script from the project directory."
+    exit 1
+fi
 
 # Set up Python environment
 echo "🐍 Setting up Python environment..."
 python3 -m venv venv
 source venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
 
 # Set up React frontend
@@ -67,6 +105,11 @@ EOF
 echo "🔐 Setting permissions..."
 chown -R www-data:www-data /var/www/us-calendar
 chmod -R 755 /var/www/us-calendar
+
+# Create nginx directories if they don't exist
+echo "📁 Creating nginx directories..."
+mkdir -p /etc/nginx/sites-available
+mkdir -p /etc/nginx/sites-enabled
 
 # Configure Nginx
 echo "🌐 Configuring Nginx..."
@@ -109,6 +152,7 @@ server {
 EOF
 
 # Enable the site
+echo "🔗 Enabling nginx site..."
 ln -sf /etc/nginx/sites-available/us-calendar /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 
