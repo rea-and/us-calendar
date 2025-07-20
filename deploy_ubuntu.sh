@@ -21,7 +21,7 @@ apt remove -y npm 2>/dev/null || true
 
 # Install required packages
 echo "📦 Installing required packages..."
-apt install -y python3 python3-pip python3-venv nginx curl
+apt install -y python3 python3-pip python3-venv nginx curl certbot python3-certbot-nginx
 
 # Install Node.js 18.x from NodeSource
 echo "📦 Installing Node.js 18.x..."
@@ -197,6 +197,25 @@ systemctl enable us-calendar
 systemctl start us-calendar
 systemctl restart nginx
 
+# Set up SSL certificate
+echo "🔒 Setting up SSL certificate..."
+if command -v certbot &> /dev/null; then
+    echo "📋 Obtaining SSL certificate for carlaveto.net..."
+    certbot --nginx -d carlaveto.net --non-interactive --agree-tos --email admin@carlaveto.net
+    
+    if [ $? -eq 0 ]; then
+        echo "✅ SSL certificate obtained successfully"
+        echo "🔄 Restarting nginx with SSL configuration..."
+        systemctl restart nginx
+    else
+        echo "⚠️  SSL certificate setup failed. Site will run on HTTP only."
+        echo "💡 You can manually run: certbot --nginx -d carlaveto.net"
+    fi
+else
+    echo "⚠️  Certbot not available. Site will run on HTTP only."
+    echo "💡 Install certbot manually: apt install certbot python3-certbot-nginx"
+fi
+
 # Check service status
 echo "📊 Checking service status..."
 systemctl status us-calendar --no-pager
@@ -206,13 +225,23 @@ echo ""
 echo "✅ Deployment completed!"
 echo ""
 echo "🌐 Your application is now available at:"
-echo "   https://carlaveto.net/us"
+echo "   HTTPS: https://carlaveto.net/us (recommended)"
+echo "   HTTP:  http://carlaveto.net/us (fallback)"
+echo ""
+echo "🔒 SSL Status:"
+if [ -f "/etc/letsencrypt/live/carlaveto.net/fullchain.pem" ]; then
+    echo "   ✅ SSL certificate installed and active"
+else
+    echo "   ⚠️  SSL certificate not installed - site runs on HTTP"
+    echo "   💡 To install SSL manually: certbot --nginx -d carlaveto.net"
+fi
 echo ""
 echo "📋 Useful commands:"
 echo "   Check backend logs: journalctl -u us-calendar -f"
 echo "   Check nginx logs: tail -f /var/log/nginx/access.log"
 echo "   Restart backend: systemctl restart us-calendar"
 echo "   Restart nginx: systemctl restart nginx"
+echo "   Renew SSL: certbot renew"
 echo ""
 echo "🔧 To update the application:"
 echo "   1. Copy new files to /var/www/us-calendar"
