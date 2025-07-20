@@ -81,6 +81,20 @@ npm install
 npm run build
 cd ..
 
+# Verify React build was created
+echo "📋 Verifying React build..."
+if [ ! -d "/var/www/us-calendar/frontend/build" ]; then
+    echo "❌ React build directory not found. Build may have failed."
+    exit 1
+fi
+
+if [ ! -f "/var/www/us-calendar/frontend/build/index.html" ]; then
+    echo "❌ React build index.html not found. Build may have failed."
+    exit 1
+fi
+
+echo "✅ React build verified successfully"
+
 # Create systemd service for Flask backend
 echo "🔧 Creating systemd service..."
 cat > /etc/systemd/system/us-calendar.service << EOF
@@ -129,6 +143,13 @@ server {
         add_header Cache-Control "no-cache, no-store, must-revalidate";
         add_header Pragma "no-cache";
         add_header Expires "0";
+    }
+
+    # Handle static assets for React build
+    location ~* ^/us/.*\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        alias /var/www/us-calendar/frontend/build;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
     }
 
     # API routes
