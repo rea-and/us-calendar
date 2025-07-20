@@ -7,7 +7,7 @@ import './App.css';
 
 // Configure axios base URL
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://carlaveto.net/api' 
+  ? 'http://carlaveto.net/api' 
   : 'http://localhost:5001/api';
 
 axios.defaults.baseURL = API_BASE_URL;
