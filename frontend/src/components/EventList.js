@@ -108,10 +108,10 @@ const EventList = ({ events, onEventClick, onDeleteEvent, compact = false }) => 
                   {event.applies_to_both ? (
                     <>
                       <span className="event-user-indicator">👨</span>
-                      <span className="event-user-indicator">👩</span>
+                      <span className="event-user-indicator">👩‍🦰</span>
                     </>
                   ) : (
-                    <span className="event-user-indicator">{event.user_name === 'Andrea' ? '👨' : '👩'}</span>
+                    <span className="event-user-indicator">{event.user_name === 'Andrea' ? '👨' : '👩‍🦰'}</span>
                   )}
                 </div>
               </div>

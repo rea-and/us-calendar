@@ -213,10 +213,10 @@ const CalendarPage = ({ currentUser, onLogout }) => {
                                   {event.applies_to_both ? (
                                     <>
                                       <span className="event-user-indicator">👨</span>
-                                      <span className="event-user-indicator">👩</span>
+                                      <span className="event-user-indicator">👩‍🦰</span>
                                     </>
                                   ) : (
-                                    <span className="event-user-indicator">{event.user_name === 'Andrea' ? '👨' : '👩'}</span>
+                                    <span className="event-user-indicator">{event.user_name === 'Andrea' ? '👨' : '👩‍🦰'}</span>
                                   )}
                                 </div>
                               </div>
@@ -268,13 +268,13 @@ const CalendarPage = ({ currentUser, onLogout }) => {
                   <span>Andrea's Events</span>
                 </div>
                 <div className="legend-item">
-                  <span className="legend-user-indicator">👩</span>
+                  <span className="legend-user-indicator">👩‍🦰</span>
                   <span>Angel's Events</span>
                 </div>
                 <div className="legend-item">
                   <div className="legend-both-avatars">
                     <span className="legend-user-indicator">👨</span>
-                    <span className="legend-user-indicator">👩</span>
+                    <span className="legend-user-indicator">👩‍🦰</span>
                   </div>
                   <span>Both (Shared Events)</span>
                 </div>
