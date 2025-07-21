@@ -141,7 +141,7 @@ const CalendarPage = ({ currentUser, onLogout }) => {
     <div className="calendar-page">
       <div className="calendar-header">
         <div className="header-content">
-          <h1>Our Calendar</h1>
+          <h1>The Amazing Angel+Andrea Calendar 🌏</h1>
           <div className="user-info">
             <span>Welcome, {currentUser.name}!</span>
             <button className="btn btn-secondary" onClick={onLogout}>
