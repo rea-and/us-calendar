@@ -364,6 +364,17 @@
 }
 
 @media (max-width: 768px) {
+  .calendar-layout {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .calendar-sidebar {
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
   .header-content {
     flex-direction: column;
     gap: 15px;
@@ -391,6 +402,7 @@
     align-items: center;
     gap: 10px;
     padding: 0 15px;
+    margin: 15px 0;
   }
   
   .calendar-controls h2 {
@@ -407,6 +419,7 @@
   
   .calendar-layout {
     padding: 0 15px;
+    gap: 10px;
   }
   
   .calendar-day {
@@ -491,6 +504,7 @@
 @media (max-width: 480px) {
   .calendar-layout {
     padding: 0 10px;
+    gap: 8px;
   }
   
   .calendar-controls {
@@ -499,6 +513,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 8px;
+    margin: 10px 0;
   }
   
   .calendar-controls h2 {
@@ -594,6 +609,10 @@
 
 /* Extra small mobile devices */
 @media (max-width: 360px) {
+  .calendar-layout {
+    gap: 6px;
+  }
+  
   .header-content h1 {
     font-size: 1.3rem;
   }
@@ -603,6 +622,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 6px;
+    margin: 8px 0;
   }
   
   .calendar-controls h2 {
