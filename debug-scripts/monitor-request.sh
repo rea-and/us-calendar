@@ -273,4 +273,88 @@ echo "💡 To view nginx errors:"
 echo "   cat $MONITOR_DIR/nginx-error.log"
 echo ""
 echo "💡 To view backend logs:"
-echo "   cat $MONITOR_DIR/backend.log" 
+echo "   cat $MONITOR_DIR/backend.log"
+
+echo ""
+echo "📊 CONSOLE SUMMARY FOR COPY/PASTE"
+echo "================================="
+echo "Date: $(date)"
+echo "Monitoring Directory: $MONITOR_DIR"
+echo ""
+
+echo "🔧 SERVICE STATUS:"
+echo "=================="
+echo "Nginx: $(systemctl is-active nginx)"
+echo "Backend: $(systemctl is-active us-calendar)"
+echo ""
+
+echo "🌐 PORT STATUS:"
+echo "=============="
+netstat -tlnp | grep -E ':(80|443|5001)' | head -5
+echo ""
+
+echo "📋 RECENT NGINX ERRORS (last 5):"
+echo "================================"
+tail -5 /var/log/nginx/error.log
+echo ""
+
+echo "🔧 RECENT BACKEND LOGS (last 5):"
+echo "================================"
+journalctl -u us-calendar --no-pager -n 5
+echo ""
+
+echo "📊 SYSTEM RESOURCES:"
+echo "==================="
+echo "Memory:"
+free -h | grep -E '^Mem|^Swap'
+echo ""
+echo "Disk:"
+df -h / | tail -1
+echo ""
+echo "Load:"
+uptime
+echo ""
+
+echo "🌐 HTTP RESPONSE TESTS:"
+echo "======================"
+echo "Main page (/us/):"
+MAIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/us/)
+echo "Status: $MAIN_STATUS"
+echo ""
+
+echo "API (/api/users):"
+API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/api/users)
+echo "Status: $API_STATUS"
+echo ""
+
+echo "Static JS file:"
+JS_FILE=$(ls /var/www/us-calendar/frontend/build/static/js/main.*.js 2>/dev/null | head -1)
+if [ -n "$JS_FILE" ]; then
+    JS_FILENAME=$(basename "$JS_FILE")
+    JS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost/us/static/js/$JS_FILENAME")
+    echo "Status: $JS_STATUS ($JS_FILENAME)"
+else
+    echo "No JS file found"
+fi
+echo ""
+
+echo "📁 REACT BUILD FILES:"
+echo "===================="
+echo "Build directory exists: $(test -d /var/www/us-calendar/frontend/build && echo 'YES' || echo 'NO')"
+echo "Index.html exists: $(test -f /var/www/us-calendar/frontend/build/index.html && echo 'YES' || echo 'NO')"
+echo "Static JS files: $(ls /var/www/us-calendar/frontend/build/static/js/ 2>/dev/null | wc -l) files"
+echo "Static CSS files: $(ls /var/www/us-calendar/frontend/build/static/css/ 2>/dev/null | wc -l) files"
+echo ""
+
+echo "🔧 NGINX CONFIGURATION:"
+echo "======================"
+echo "Config valid: $(nginx -t >/dev/null 2>&1 && echo 'YES' || echo 'NO')"
+echo ""
+
+echo "📊 MONITORING FILES CREATED:"
+echo "==========================="
+ls -la "$MONITOR_DIR" | grep -E '\.(log|txt)$'
+echo ""
+
+echo "📋 END OF CONSOLE SUMMARY"
+echo "=========================" 
