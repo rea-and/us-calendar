@@ -10,7 +10,7 @@ const LandingPage = ({ users, onUserSelect }) => {
     <div className="landing-page">
       <div className="landing-container">
         <div className="landing-header">
-          <h1>Our Calendar</h1>
+          <h1>The Amazing Angel+Andrea Calendar 🌏</h1>
         </div>
         
         <div className="user-selection">
@@ -30,7 +30,7 @@ const LandingPage = ({ users, onUserSelect }) => {
         </div>
         
         <div className="landing-footer">
-          <p>Our shared calendar</p>
+          <p>Coded with Love</p>
         </div>
       </div>
     </div>
