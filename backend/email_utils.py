@@ -19,7 +19,7 @@ def send_event_notification(event_data, action="created"):
     """
     
     # Email configuration
-    sender_email = "your-gmail@gmail.com"  # Replace with your Gmail address
+    sender_email = "andrea.carlevato@gmail.com"  # Replace with your Gmail address
     receiver_email = "andrea.carlevato@gmail.com"
     
     # Email content
@@ -80,7 +80,7 @@ This is an automated notification. Please do not reply to this email.
         # Send email via Gmail SMTP
         try:
             with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-                server.login(sender_email, "your-app-password-here")  # Replace with your app password
+                server.login(sender_email, "tyvjvkbzwpafiznj")  # Replace with your app password
                 server.sendmail(sender_email, receiver_email, message.as_string())
                 logger.info(f"✅ Email sent successfully to {receiver_email}")
         except Exception as smtp_error:
