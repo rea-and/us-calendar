@@ -192,8 +192,9 @@ echo "================================"
 # Test external access
 echo "📋 Testing external IP access:"
 EXTERNAL_RESPONSE=$(curl -s "http://157.230.244.80/us/static/js/$JS_FILENAME" | head -1)
-if echo "$EXTERNAL_RESPONSE" | grep -q "function\|var\|const\|let\|import\|webpack"; then
+if echo "$EXTERNAL_RESPONSE" | grep -q "function\|var\|const\|let\|import\|webpack\|/\*!"; then
     echo "✅ External access to JavaScript file works"
+    echo "📋 First line: $(echo "$EXTERNAL_RESPONSE" | head -1 | cut -c1-50)..."
 else
     echo "❌ External access to JavaScript file failed"
     echo "📋 First line: $(echo "$EXTERNAL_RESPONSE" | head -1 | cut -c1-50)..."
