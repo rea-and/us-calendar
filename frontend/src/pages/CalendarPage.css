@@ -402,7 +402,7 @@
     align-items: center;
     gap: 10px;
     padding: 0 15px;
-    margin: 15px 0;
+    margin: 8px 0;
   }
   
   .calendar-controls h2 {
@@ -420,6 +420,10 @@
   .calendar-layout {
     padding: 0 15px;
     gap: 10px;
+  }
+  
+  .calendar-main {
+    min-height: auto;
   }
   
   .calendar-day {
@@ -507,13 +511,17 @@
     gap: 8px;
   }
   
+  .calendar-main {
+    min-height: auto;
+  }
+  
   .calendar-controls {
     padding: 0 10px;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
-    margin: 10px 0;
+    margin: 6px 0;
   }
   
   .calendar-controls h2 {
@@ -613,6 +621,10 @@
     gap: 6px;
   }
   
+  .calendar-main {
+    min-height: auto;
+  }
+  
   .header-content h1 {
     font-size: 1.3rem;
   }
@@ -622,7 +634,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 6px;
-    margin: 8px 0;
+    margin: 4px 0;
   }
   
   .calendar-controls h2 {
