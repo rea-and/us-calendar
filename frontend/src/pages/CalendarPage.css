@@ -81,7 +81,7 @@
   padding: 15px 10px;
   text-align: center;
   font-weight: 600;
-  color: #495057;
+  color: #333;
   font-size: 0.9rem;
 }
 
@@ -115,7 +115,7 @@
 
 .calendar-day.other-month {
   background-color: #f8f9fa;
-  color: #495057;
+  color: #666;
 }
 
 .day-number {
@@ -132,7 +132,7 @@
   top: -2px;
   right: -8px;
   font-size: 0.7rem;
-  color: #6c757d;
+  color: #333;
   opacity: 0;
   transition: opacity 0.2s ease;
 }

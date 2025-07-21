@@ -10,7 +10,7 @@
 
 .event-list-empty {
   text-align: center;
-  color: #495057;
+  color: #333;
   font-style: italic;
   padding: 20px;
 }
@@ -76,7 +76,7 @@
 
 .event-user {
   font-size: 0.8rem;
-  color: #495057;
+  color: #333;
   background: #f8f9fa;
   padding: 3px 8px;
   border-radius: 4px;
@@ -104,17 +104,17 @@
 .event-date {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #495057;
+  color: #333;
 }
 
 .event-hours {
   font-size: 0.8rem;
-  color: #495057;
+  color: #333;
 }
 
 .event-description {
   font-size: 0.9rem;
-  color: #495057;
+  color: #333;
   margin: 0;
   line-height: 1.4;
   display: -webkit-box;
