@@ -213,10 +213,10 @@ const CalendarPage = ({ currentUser, onLogout }) => {
                                   {event.applies_to_both ? (
                                     <>
                                       <span className="event-user-indicator">👨</span>
-                                      <span className="event-user-indicator">👩‍🦰</span>
+                                      <span className="event-user-indicator">👩🏻</span>
                                     </>
                                   ) : (
-                                    <span className="event-user-indicator">{event.user_name === 'Andrea' ? '👨' : '👩‍🦰'}</span>
+                                    <span className="event-user-indicator">{event.user_name === 'Andrea' ? '👨' : '👩🏻'}</span>
                                   )}
                                 </div>
                               </div>
@@ -267,17 +267,17 @@ const CalendarPage = ({ currentUser, onLogout }) => {
                   <span className="legend-user-indicator">👨</span>
                   <span>Andrea</span>
                 </div>
-                <div className="legend-item">
-                  <span className="legend-user-indicator">👩‍🦰</span>
-                  <span>Angel</span>
-                </div>
-                <div className="legend-item">
-                  <div className="legend-both-avatars">
-                    <span className="legend-user-indicator">👨</span>
-                    <span className="legend-user-indicator">👩‍🦰</span>
+                                  <div className="legend-item">
+                    <span className="legend-user-indicator">👩🏻</span>
+                    <span>Angel</span>
                   </div>
-                  <span>Together</span>
-                </div>
+                  <div className="legend-item">
+                    <div className="legend-both-avatars">
+                      <span className="legend-user-indicator">👨</span>
+                      <span className="legend-user-indicator">👩🏻</span>
+                    </div>
+                    <span>Together</span>
+                  </div>
               </div>
             </div>
 
