@@ -102,5 +102,12 @@ def should_send_notification(event_data, user_name):
     Returns:
         bool: True if notification should be sent
     """
+    # Debug logging
+    print(f"🔍 Checking notification for user: '{user_name}' (type: {type(user_name)})")
+    print(f"🔍 User name comparison: '{user_name.lower()}' == 'angel'")
+    
     # Only send notifications when Angel creates or updates events
-    return user_name.lower() == "angel" 
+    should_send = user_name.lower() == "angel"
+    print(f"🔍 Should send notification: {should_send}")
+    
+    return should_send 
