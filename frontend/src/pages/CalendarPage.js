@@ -265,18 +265,18 @@ const CalendarPage = ({ currentUser, onLogout }) => {
               <div className="user-legend">
                 <div className="legend-item">
                   <span className="legend-user-indicator">👨</span>
-                  <span>Andrea's Events</span>
+                  <span>Andrea</span>
                 </div>
                 <div className="legend-item">
                   <span className="legend-user-indicator">👩‍🦰</span>
-                  <span>Angel's Events</span>
+                  <span>Angel</span>
                 </div>
                 <div className="legend-item">
                   <div className="legend-both-avatars">
                     <span className="legend-user-indicator">👨</span>
                     <span className="legend-user-indicator">👩‍🦰</span>
                   </div>
-                  <span>Us (Together)</span>
+                  <span>Together</span>
                 </div>
               </div>
             </div>
