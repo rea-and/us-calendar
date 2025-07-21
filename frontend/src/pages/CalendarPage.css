@@ -52,15 +52,15 @@
 
 .calendar-layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 250px;
   gap: 30px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
 .calendar-main {
-  min-height: 600px;
+  min-height: 700px;
 }
 
 .calendar {
@@ -103,7 +103,7 @@
 .calendar-day {
   background: white;
   padding: 12px;
-  min-height: 120px;
+  min-height: 140px;
   position: relative;
   transition: background-color 0.2s ease;
   cursor: pointer;
@@ -604,7 +604,7 @@
 /* Landscape mobile orientation */
 @media (max-width: 768px) and (orientation: landscape) {
   .calendar-layout {
-    grid-template-columns: 1fr 250px;
+    grid-template-columns: 1fr 200px;
     gap: 15px;
   }
   
