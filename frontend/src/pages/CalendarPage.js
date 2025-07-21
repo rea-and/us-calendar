@@ -276,7 +276,7 @@ const CalendarPage = ({ currentUser, onLogout }) => {
                     <span className="legend-user-indicator">👨</span>
                     <span className="legend-user-indicator">👩‍🦰</span>
                   </div>
-                  <span>Us (Shared Events)</span>
+                  <span>Us (Together)</span>
                 </div>
               </div>
             </div>
