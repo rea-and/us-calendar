@@ -104,7 +104,6 @@ const EventList = ({ events, onEventClick, onDeleteEvent, compact = false }) => 
               <div className="event-list-header">
                 <h4 className="event-title">{event.title}</h4>
                 <div className="event-header-indicators">
-                  <span className="event-user">{event.user_name}</span>
                   {event.applies_to_both ? (
                     <>
                       <span className="event-user-indicator">👨</span>
