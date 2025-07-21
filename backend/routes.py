@@ -3,6 +3,7 @@ from app import app, db
 from models import User, Event
 from datetime import datetime
 import dateutil.parser
+from email_utils import send_event_notification, should_send_notification
 
 @app.route('/api/users', methods=['GET'])
 def get_users():
@@ -62,6 +63,10 @@ def create_event():
         db.session.add(event)
         db.session.commit()
         
+        # Send email notification if Angel created the event
+        if should_send_notification(event.to_dict(), user.name):
+            send_event_notification(event.to_dict(), "created")
+        
         return jsonify(event.to_dict()), 201
         
     except Exception as e:
@@ -97,6 +102,11 @@ def update_event(event_id):
             event.applies_to_both = data['applies_to_both']
         
         db.session.commit()
+        
+        # Send email notification if Angel updated the event
+        if should_send_notification(event.to_dict(), event.user.name):
+            send_event_notification(event.to_dict(), "updated")
+        
         return jsonify(event.to_dict()), 200
         
     except Exception as e:
