@@ -19,7 +19,7 @@ def send_event_notification(event_data, action="created"):
     """
     
     # Email configuration
-    sender_email = "noreply@carlevato.net"  # You'll need to configure this
+    sender_email = "your-gmail@gmail.com"  # Replace with your Gmail address
     receiver_email = "andrea.carlevato@gmail.com"
     
     # Email content
@@ -77,17 +77,19 @@ This is an automated notification. Please do not reply to this email.
         # Create SMTP session
         context = ssl.create_default_context()
         
-        # For development/testing, we'll just log the email
-        # In production, you'd send it via SMTP
-        logger.info(f"📧 EMAIL NOTIFICATION (would send to {receiver_email}):")
-        logger.info(f"Subject: {subject}")
-        logger.info(f"Body:\n{body}")
-        logger.info("-" * 50)
-        
-        # TODO: Uncomment and configure for production
-        # with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-        #     server.login(sender_email, "your-app-password")
-        #     server.sendmail(sender_email, receiver_email, message.as_string())
+        # Send email via Gmail SMTP
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+                server.login(sender_email, "your-app-password-here")  # Replace with your app password
+                server.sendmail(sender_email, receiver_email, message.as_string())
+                logger.info(f"✅ Email sent successfully to {receiver_email}")
+        except Exception as smtp_error:
+            logger.error(f"❌ SMTP Error: {smtp_error}")
+            # Fallback to logging if SMTP fails
+            logger.info(f"📧 EMAIL NOTIFICATION (would send to {receiver_email}):")
+            logger.info(f"Subject: {subject}")
+            logger.info(f"Body:\n{body}")
+            logger.info("-" * 50)
         
         return True
         
