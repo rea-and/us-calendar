@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Our Calendar Ubuntu Deployment Script
-# Deploys to carlaveto.net/us
+# Deploys to carlevato.net/us
 
 echo "🚀 Deploying Our Calendar to Ubuntu Server..."
 
@@ -21,7 +21,7 @@ apt remove -y npm 2>/dev/null || true
 
 # Install required packages
 echo "📦 Installing required packages..."
-apt install -y python3 python3-pip python3-venv nginx curl certbot python3-certbot-nginx
+apt install -y python3 python3-pip python3-venv apache2 apache2-utils libapache2-mod-wsgi-py3 curl certbot python3-certbot-apache
 
 # Install Node.js 18.x from NodeSource
 echo "📦 Installing Node.js 18.x..."
@@ -33,7 +33,7 @@ echo "✅ Verifying installations..."
 python3 --version
 node --version
 npm --version
-nginx -v
+apache2 -v
 
 # Get the current directory where the script is running from
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -122,71 +122,96 @@ echo "🔐 Setting permissions..."
 chown -R www-data:www-data /var/www/us-calendar
 chmod -R 755 /var/www/us-calendar
 
-# Create nginx directories if they don't exist
-echo "📁 Creating nginx directories..."
-mkdir -p /etc/nginx/sites-available
-mkdir -p /etc/nginx/sites-enabled
+# Enable required Apache modules
+echo "🔧 Enabling Apache modules..."
+a2enmod proxy
+a2enmod proxy_http
+a2enmod rewrite
+a2enmod ssl
+a2enmod headers
 
-# Configure Nginx
-echo "🌐 Configuring Nginx..."
-cat > /etc/nginx/sites-available/us-calendar << EOF
-server {
-    listen 80;
-    server_name carlaveto.net;
+# Configure Apache
+echo "🌐 Configuring Apache..."
+cat > /etc/apache2/sites-available/us-calendar.conf << EOF
+<VirtualHost *:80>
+    ServerName carlevato.net
+    ServerAlias www.carlevato.net
+    DocumentRoot /var/www/us-calendar/frontend/build
+    
+    # Redirect all HTTP to HTTPS
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</VirtualHost>
 
-    # Serve React frontend at /us
-    location /us {
-        alias /var/www/us-calendar/frontend/build;
-        try_files \$uri \$uri/ /us/index.html;
-        
-        # Add headers for SPA routing
-        add_header Cache-Control "no-cache, no-store, must-revalidate";
-        add_header Pragma "no-cache";
-        add_header Expires "0";
-    }
-
-    # Handle static assets for React build
-    location ~* ^/us/.*\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
-        alias /var/www/us-calendar/frontend/build;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-
-    # API routes
-    location /api {
-        proxy_pass http://localhost:5001;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-    }
-
-    # Health check
-    location /health {
-        proxy_pass http://localhost:5001/api/health;
-        proxy_set_header Host \$host;
-    }
-
-    # Redirect root to /us
-    location = / {
-        return 301 /us;
-    }
-}
+<VirtualHost *:443>
+    ServerName carlevato.net
+    ServerAlias www.carlevato.net
+    DocumentRoot /var/www/us-calendar/frontend/build
+    
+    # SSL Configuration (will be updated by certbot)
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/carlevato.net/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/carlevato.net/privkey.pem
+    
+    # Security headers
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # API proxy
+    ProxyPreserveHost On
+    ProxyPass /api/ http://localhost:5001/api/
+    ProxyPassReverse /api/ http://localhost:5001/api/
+    
+    # Static files with proper MIME types
+    <Directory "/var/www/us-calendar/frontend/build/static">
+        Require all granted
+        ExpiresActive On
+        ExpiresDefault "access plus 1 year"
+        Header set Cache-Control "public, immutable"
+    </Directory>
+    
+    # JavaScript files
+    <FilesMatch "\.js$">
+        Header set Content-Type "application/javascript"
+    </FilesMatch>
+    
+    # CSS files
+    <FilesMatch "\.css$">
+        Header set Content-Type "text/css"
+    </FilesMatch>
+    
+    # React app routes - serve index.html for all non-file requests
+    <Directory "/var/www/us-calendar/frontend/build">
+        Require all granted
+        Options -Indexes
+        FallbackResource /index.html
+    </Directory>
+    
+    # Root redirect to /us
+    RedirectMatch 301 ^/$ /us/
+    
+    # Logs
+    ErrorLog \${APACHE_LOG_DIR}/us-calendar-error.log
+    CustomLog \${APACHE_LOG_DIR}/us-calendar-access.log combined
+</VirtualHost>
 EOF
 
-# Enable the site
-echo "🔗 Enabling nginx site..."
-ln -sf /etc/nginx/sites-available/us-calendar /etc/nginx/sites-enabled/
-rm -f /etc/nginx/sites-enabled/default
+# Disable default site and enable our site
+echo "🔗 Enabling Apache site..."
+a2dissite 000-default.conf
+a2ensite us-calendar.conf
 
-# Test Nginx configuration
-echo "🧪 Testing Nginx configuration..."
-nginx -t
+# Test Apache configuration
+echo "🧪 Testing Apache configuration..."
+apache2ctl configtest
 
 if [ $? -eq 0 ]; then
-    echo "✅ Nginx configuration is valid"
+    echo "✅ Apache configuration is valid"
 else
-    echo "❌ Nginx configuration failed"
+    echo "❌ Apache configuration failed"
     exit 1
 fi
 
@@ -195,70 +220,74 @@ echo "🚀 Starting services..."
 systemctl daemon-reload
 systemctl enable us-calendar
 systemctl start us-calendar
-systemctl restart nginx
+systemctl enable apache2
+systemctl start apache2
 
 # Set up SSL certificate
 echo "🔒 Setting up SSL certificate..."
 if command -v certbot &> /dev/null; then
-    echo "📋 Checking DNS resolution for carlaveto.net..."
-    if nslookup carlaveto.net >/dev/null 2>&1; then
+    echo "📋 Checking DNS resolution for carlevato.net..."
+    if nslookup carlevato.net >/dev/null 2>&1; then
         echo "✅ DNS resolution successful"
-        echo "📋 Obtaining SSL certificate for carlaveto.net..."
-        certbot --nginx -d carlaveto.net --non-interactive --agree-tos --email admin@carlaveto.net
+        echo "📋 Obtaining SSL certificate for carlevato.net..."
+        certbot --apache -d carlevato.net -d www.carlevato.net --non-interactive --agree-tos --email admin@carlevato.net
         
         if [ $? -eq 0 ]; then
             echo "✅ SSL certificate obtained successfully"
-            echo "🔄 Restarting nginx with SSL configuration..."
-            systemctl restart nginx
+            echo "🔄 Restarting Apache with SSL configuration..."
+            systemctl restart apache2
         else
             echo "⚠️  SSL certificate setup failed. Site will run on HTTP only."
             echo "💡 Common issues:"
             echo "   - DNS not pointing to this server"
             echo "   - Port 80 not accessible from internet"
             echo "   - Domain not registered or expired"
-            echo "💡 You can manually run: certbot --nginx -d carlaveto.net"
+            echo "💡 You can manually run: certbot --apache -d carlevato.net"
         fi
     else
-        echo "❌ DNS resolution failed for carlaveto.net"
+        echo "❌ DNS resolution failed for carlevato.net"
         echo "💡 Please ensure:"
-        echo "   1. Domain carlaveto.net is registered"
+        echo "   1. Domain carlevato.net is registered"
         echo "   2. DNS A record points to this server's IP"
         echo "   3. DNS propagation has completed (can take up to 48 hours)"
         echo "💡 Site will run on HTTP only until DNS is configured"
     fi
 else
     echo "⚠️  Certbot not available. Site will run on HTTP only."
-    echo "💡 Install certbot manually: apt install certbot python3-certbot-nginx"
+    echo "💡 Install certbot manually: apt install certbot python3-certbot-apache"
 fi
 
 # Check service status
 echo "📊 Checking service status..."
 systemctl status us-calendar --no-pager
-systemctl status nginx --no-pager
+systemctl status apache2 --no-pager
 
 echo ""
 echo "✅ Deployment completed!"
 echo ""
 echo "🌐 Your application is now available at:"
-echo "   HTTPS: https://carlaveto.net/us (recommended)"
-echo "   HTTP:  http://carlaveto.net/us (fallback)"
+echo "   HTTPS: https://carlevato.net/us (recommended)"
+echo "   HTTP:  http://carlevato.net/us (fallback)"
 echo ""
 echo "🔒 SSL Status:"
-if [ -f "/etc/letsencrypt/live/carlaveto.net/fullchain.pem" ]; then
+if [ -f "/etc/letsencrypt/live/carlevato.net/fullchain.pem" ]; then
     echo "   ✅ SSL certificate installed and active"
 else
     echo "   ⚠️  SSL certificate not installed - site runs on HTTP"
-    echo "   💡 To install SSL manually: certbot --nginx -d carlaveto.net"
+    echo "   💡 To install SSL manually: certbot --apache -d carlevato.net"
 fi
 echo ""
 echo "📋 Useful commands:"
 echo "   Check backend logs: journalctl -u us-calendar -f"
-echo "   Check nginx logs: tail -f /var/log/nginx/access.log"
+echo "   Check Apache logs: tail -f /var/log/apache2/us-calendar-error.log"
 echo "   Restart backend: systemctl restart us-calendar"
-echo "   Restart nginx: systemctl restart nginx"
+echo "   Restart Apache: systemctl restart apache2"
 echo "   Renew SSL: certbot renew"
 echo ""
 echo "🔧 To update the application:"
 echo "   1. Copy new files to /var/www/us-calendar"
 echo "   2. Run: cd /var/www/us-calendar/frontend && npm run build"
-echo "   3. Run: systemctl restart us-calendar" 
+echo "   3. Run: systemctl restart us-calendar"
+echo ""
+echo "🔄 If you need to switch from nginx to Apache:"
+echo "   cd debug-scripts && sudo ./switch-to-apache-https.sh" 

@@ -37,6 +37,7 @@ A modern, mobile-responsive shared calendar application for couples to manage th
 - **Error handling**: User-friendly error messages
 - **Loading states**: Smooth loading indicators
 - **Form validation**: Comprehensive input validation
+- **HTTPS support**: Secure connections with Let's Encrypt SSL
 
 ## 🛠️ Tech Stack
 
@@ -44,7 +45,8 @@ A modern, mobile-responsive shared calendar application for couples to manage th
 - **Database**: SQLite with SQLAlchemy ORM
 - **Frontend**: React with modern hooks and functional components
 - **Styling**: CSS3 with mobile-first responsive design
-- **Deployment**: Accessible at carlaveto.net/us
+- **Web Server**: Apache with HTTPS (Let's Encrypt)
+- **Deployment**: Production-ready at https://carlevato.net/us
 
 ## 📁 Project Structure
 
@@ -70,6 +72,11 @@ us-calendar/
 │   │   ├── App.js             # Main app component
 │   │   └── index.css          # Global styles
 │   └── package.json
+├── debug-scripts/          # Server debugging and maintenance scripts
+│   ├── switch-to-apache-https.sh    # Apache + HTTPS setup
+│   ├── client-diagnostic-mac.sh     # Client-side diagnostics
+│   ├── monitor-request.sh           # Real-time request monitoring
+│   └── *.sh                        # Other debugging scripts
 ├── requirements.txt        # Python dependencies
 ├── start_dev.sh           # Development startup script
 ├── deploy_ubuntu.sh       # Ubuntu deployment script
@@ -203,6 +210,8 @@ us-calendar/
 - **SQL injection protection**: Parameterized queries
 - **XSS protection**: Proper content escaping
 - **CSRF protection**: Form token validation
+- **HTTPS enforcement**: Automatic HTTP to HTTPS redirect
+- **Security headers**: HSTS, X-Content-Type-Options, X-Frame-Options
 
 ## 🚀 Deployment
 
@@ -214,12 +223,54 @@ us-calendar/
    ./deploy_ubuntu.sh
    ```
 
-2. **Configure web server** to serve at carlaveto.net/us
+2. **Switch to Apache with HTTPS:**
+   ```bash
+   cd debug-scripts
+   chmod +x switch-to-apache-https.sh
+   sudo ./switch-to-apache-https.sh
+   ```
+
+3. **Access the application:**
+   - **Primary**: https://carlevato.net/us/ (HTTPS)
+   - **Fallback**: http://157.230.244.80/us/ (HTTP)
+
+### Server Configuration
+
+#### Apache Virtual Host
+- **Document Root**: `/var/www/us-calendar/frontend/build`
+- **API Proxy**: `/api/` → `http://localhost:5001/api/`
+- **SSL Certificate**: Let's Encrypt for carlevato.net
+- **Security Headers**: HSTS, X-Content-Type-Options, X-Frame-Options
+
+#### Static File Serving
+- **JavaScript**: `application/javascript` MIME type
+- **CSS**: `text/css` MIME type
+- **Caching**: 1 year for static assets
+- **Fallback**: index.html for React routes
+
+#### Backend Service
+- **Service**: systemd service `us-calendar`
+- **Port**: 5001 (internal)
+- **Database**: SQLite at `/var/www/us-calendar/backend/calendar.db`
+- **CORS**: Configured for production HTTPS domains
 
 ### Environment Variables
 - `FLASK_ENV`: Set to 'production' for deployment
 - `DATABASE_URL`: SQLite database path
 - `SECRET_KEY`: Flask secret key for sessions
+
+### Troubleshooting
+
+#### Debug Scripts
+- **Client Diagnostics**: `debug-scripts/client-diagnostic-mac.sh` (run on Mac)
+- **Request Monitoring**: `debug-scripts/monitor-request.sh` (run on server)
+- **Apache Switch**: `debug-scripts/switch-to-apache-https.sh` (run on server)
+
+#### Common Issues
+- **SSL Certificate**: Ensure DNS points to server IP
+- **Static Files**: Check Apache MIME type configuration
+- **API Issues**: Verify backend service is running
+- **CORS Errors**: Check CORS configuration in backend
 
 ## 🤝 Contributing
 

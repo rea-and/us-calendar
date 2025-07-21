@@ -5,8 +5,9 @@
 A modern, mobile-responsive shared calendar application for couples built with:
 - **Backend**: Flask (Python) with SQLite database and RESTful API
 - **Frontend**: React with modern hooks, mobile-first responsive design
+- **Web Server**: Apache with HTTPS (Let's Encrypt)
 - **Features**: User recognition, touch interactions, enhanced UX
-- **Deployment**: Accessible at carlaveto.net/us
+- **Deployment**: Production-ready at https://carlevato.net/us
 
 ## 📁 Project Structure
 
@@ -37,6 +38,11 @@ us-calendar/
 │   │   ├── index.js        # React entry point
 │   │   └── index.css       # Global styles with accessibility
 │   └── package.json        # Node.js dependencies
+├── debug-scripts/          # Server debugging and maintenance scripts
+│   ├── switch-to-apache-https.sh    # Apache + HTTPS setup
+│   ├── client-diagnostic-mac.sh     # Client-side diagnostics
+│   ├── monitor-request.sh           # Real-time request monitoring
+│   └── *.sh                        # Other debugging scripts
 ├── requirements.txt        # Python dependencies
 ├── start_dev.sh           # Development startup script
 ├── deploy_ubuntu.sh       # Ubuntu deployment script
@@ -78,7 +84,7 @@ This script will:
 
 ### Prerequisites
 - Ubuntu 20.04+ with root/sudo access
-- Domain: carlaveto.net
+- Domain: carlevato.net
 
 ### 1. Upload Files
 Upload the project files to your Ubuntu server.
@@ -90,14 +96,85 @@ sudo ./deploy_ubuntu.sh
 ```
 
 This script will:
-- 📦 Install system dependencies (Python3, Node.js, Nginx)
+- 📦 Install system dependencies (Python3, Node.js, Apache)
 - 🏗️ Build React frontend with mobile optimizations
-- 🔧 Configure Nginx to serve at carlaveto.net/us
+- 🔧 Configure Apache to serve at carlevato.net/us
+- 🔒 Set up HTTPS with Let's Encrypt SSL certificate
 - 🚀 Create systemd service for Flask backend
 - ✅ Start all services
 
 ### 3. Access Production Application
-- **Production URL**: https://carlaveto.net/us
+- **Production URL**: https://carlevato.net/us
+- **HTTP Fallback**: http://carlevato.net/us
+
+### 4. Server Configuration (Automatic)
+The deployment script automatically configures:
+- **Apache Virtual Host**: Document root at `/var/www/us-calendar/frontend/build`
+- **API Proxy**: `/api/` routes to Flask backend on port 5001
+- **SSL Certificate**: Let's Encrypt for carlevato.net
+- **Security Headers**: HSTS, X-Content-Type-Options, X-Frame-Options
+- **Static File Serving**: Proper MIME types for JavaScript and CSS
+- **React Routing**: Fallback to index.html for SPA routes
+
+## 🔧 Server Management
+
+### Debug Scripts
+The project includes comprehensive debugging and maintenance scripts:
+
+#### Apache Switch Script
+```bash
+cd debug-scripts
+sudo ./switch-to-apache-https.sh
+```
+- Removes nginx completely
+- Installs and configures Apache
+- Sets up HTTPS with Let's Encrypt
+- Configures proper MIME types
+- Updates backend CORS for production
+
+#### Client Diagnostics (Mac)
+```bash
+cd debug-scripts
+./client-diagnostic-mac.sh
+```
+- Tests network connectivity
+- Validates main page loading
+- Checks API responses
+- Simulates browser requests
+- Generates detailed diagnostic report
+
+#### Request Monitoring
+```bash
+cd debug-scripts
+sudo ./monitor-request.sh
+```
+- Real-time server monitoring
+- Captures logs during requests
+- Shows HTTP responses
+- Monitors system resources
+- Provides console summary
+
+### Common Server Commands
+```bash
+# Check service status
+sudo systemctl status us-calendar
+sudo systemctl status apache2
+
+# View logs
+sudo journalctl -u us-calendar -f
+sudo tail -f /var/log/apache2/us-calendar-error.log
+
+# Restart services
+sudo systemctl restart us-calendar
+sudo systemctl restart apache2
+
+# SSL certificate renewal
+sudo certbot renew
+
+# Update application
+cd /var/www/us-calendar/frontend && npm run build
+sudo systemctl restart us-calendar
+```
 
 ## 📱 Features
 
@@ -192,18 +269,21 @@ The SQLite database is automatically created at `backend/database.db` with:
 ## 🔒 Security & Performance
 
 ### Security
-- CORS configured for localhost and production domain
+- CORS configured for localhost and production HTTPS domains
 - Input validation on all forms (client and server-side)
 - SQL injection protection via SQLAlchemy ORM
 - XSS protection via React
 - CSRF protection for forms
+- HTTPS enforcement with automatic redirect
+- Security headers (HSTS, X-Content-Type-Options, X-Frame-Options)
 
 ### Performance
 - React build optimization for production
 - SQLite for simple, fast data storage
-- Nginx caching headers
+- Apache caching headers for static assets
 - Responsive images and lazy loading
 - Mobile-optimized bundle sizes
+- Proper MIME types for JavaScript and CSS files
 
 ### Accessibility
 - High contrast mode support
@@ -250,11 +330,30 @@ python -c "from app import app, db; app.app_context().push(); db.create_all()"
 ```bash
 # Check service status
 sudo systemctl status us-calendar
-sudo systemctl status nginx
+sudo systemctl status apache2
 
 # Check logs
 sudo journalctl -u us-calendar -f
-sudo tail -f /var/log/nginx/error.log
+sudo tail -f /var/log/apache2/us-calendar-error.log
+
+# Test Apache configuration
+sudo apache2ctl configtest
+
+# Check SSL certificate
+sudo certbot certificates
+```
+
+**Static file issues:**
+```bash
+# Check Apache MIME types
+sudo apache2ctl -M | grep mime
+
+# Verify file permissions
+sudo chown -R www-data:www-data /var/www/us-calendar
+sudo chmod -R 755 /var/www/us-calendar
+
+# Test static file serving
+curl -I http://localhost/us/static/js/main.js
 ```
 
 ### Mobile Testing
@@ -263,14 +362,31 @@ sudo tail -f /var/log/nginx/error.log
 - **Desktop**: Test responsive design in browser dev tools
 - **Touch Interactions**: Verify swipe and long-press work correctly
 
+### Debug Scripts Usage
+```bash
+# Run client diagnostics (on Mac)
+cd debug-scripts
+./client-diagnostic-mac.sh
+
+# Monitor server requests (on Ubuntu)
+cd debug-scripts
+sudo ./monitor-request.sh
+
+# Switch to Apache (if needed)
+cd debug-scripts
+sudo ./switch-to-apache-https.sh
+```
+
 ## 📞 Support
 
 For issues or questions:
 1. Check the troubleshooting section above
-2. Verify all dependencies are installed
-3. Check service logs for error messages
-4. Ensure ports 3000 (dev) and 80/443 (prod) are available
-5. Test mobile functionality on actual devices
+2. Run the appropriate debug script for your platform
+3. Verify all dependencies are installed
+4. Check service logs for error messages
+5. Ensure ports 3000 (dev) and 80/443 (prod) are available
+6. Test mobile functionality on actual devices
+7. Verify SSL certificate is valid and DNS is configured
 
 ## 🎉 Success!
 
@@ -278,4 +394,6 @@ Your modern, mobile-responsive shared calendar application is now ready! Enjoy m
 - ✅ **Intuitive user recognition** with visual indicators
 - ✅ **Touch-friendly mobile experience** with swipe and long-press
 - ✅ **Enhanced UX** with click-to-create and auto-sync
-- ✅ **Beautiful responsive design** that works on all devices 
+- ✅ **Beautiful responsive design** that works on all devices
+- ✅ **Secure HTTPS deployment** with Apache and Let's Encrypt
+- ✅ **Comprehensive debugging tools** for troubleshooting 
