@@ -4,6 +4,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import os
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 def send_event_notification(event_data, action="created"):
     """
@@ -75,10 +79,10 @@ This is an automated notification. Please do not reply to this email.
         
         # For development/testing, we'll just log the email
         # In production, you'd send it via SMTP
-        print(f"📧 EMAIL NOTIFICATION (would send to {receiver_email}):")
-        print(f"Subject: {subject}")
-        print(f"Body:\n{body}")
-        print("-" * 50)
+        logger.info(f"📧 EMAIL NOTIFICATION (would send to {receiver_email}):")
+        logger.info(f"Subject: {subject}")
+        logger.info(f"Body:\n{body}")
+        logger.info("-" * 50)
         
         # TODO: Uncomment and configure for production
         # with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
@@ -88,7 +92,7 @@ This is an automated notification. Please do not reply to this email.
         return True
         
     except Exception as e:
-        print(f"❌ Error sending email notification: {e}")
+        logger.error(f"❌ Error sending email notification: {e}")
         return False
 
 def should_send_notification(event_data, user_name):
@@ -103,11 +107,11 @@ def should_send_notification(event_data, user_name):
         bool: True if notification should be sent
     """
     # Debug logging
-    print(f"🔍 Checking notification for user: '{user_name}' (type: {type(user_name)})")
-    print(f"🔍 User name comparison: '{user_name.lower()}' == 'angel'")
+    logger.info(f"🔍 Checking notification for user: '{user_name}' (type: {type(user_name)})")
+    logger.info(f"🔍 User name comparison: '{user_name.lower()}' == 'angel'")
     
     # Only send notifications when Angel creates or updates events
     should_send = user_name.lower() == "angel"
-    print(f"🔍 Should send notification: {should_send}")
+    logger.info(f"🔍 Should send notification: {should_send}")
     
     return should_send 

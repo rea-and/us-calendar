@@ -3,7 +3,12 @@ from app import app, db
 from models import User, Event
 from datetime import datetime
 import dateutil.parser
+import logging
 from email_utils import send_event_notification, should_send_notification
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @app.route('/api/users', methods=['GET'])
 def get_users():
@@ -64,12 +69,12 @@ def create_event():
         db.session.commit()
         
         # Send email notification if Angel created the event
-        print(f"📧 Event created by user: '{user.name}' (ID: {user.id})")
+        logger.info(f"📧 Event created by user: '{user.name}' (ID: {user.id})")
         if should_send_notification(event.to_dict(), user.name):
-            print(f"📧 Sending email notification for event: {event.title}")
+            logger.info(f"📧 Sending email notification for event: {event.title}")
             send_event_notification(event.to_dict(), "created")
         else:
-            print(f"📧 No email notification sent for user: {user.name}")
+            logger.info(f"📧 No email notification sent for user: {user.name}")
         
         return jsonify(event.to_dict()), 201
         
@@ -108,12 +113,12 @@ def update_event(event_id):
         db.session.commit()
         
         # Send email notification if Angel updated the event
-        print(f"📧 Event updated by user: '{event.user.name}' (ID: {event.user.id})")
+        logger.info(f"📧 Event updated by user: '{event.user.name}' (ID: {event.user.id})")
         if should_send_notification(event.to_dict(), event.user.name):
-            print(f"📧 Sending email notification for event: {event.title}")
+            logger.info(f"📧 Sending email notification for event: {event.title}")
             send_event_notification(event.to_dict(), "updated")
         else:
-            print(f"📧 No email notification sent for user: {event.user.name}")
+            logger.info(f"📧 No email notification sent for user: {event.user.name}")
         
         return jsonify(event.to_dict()), 200
         
