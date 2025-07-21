@@ -217,7 +217,7 @@ const EventForm = ({ event, onSubmit, onCancel, onDelete, users, isEdit = false,
                 onChange={handleInputChange}
               />
               <label htmlFor="applies_to_both" className="checkbox-label">
-                This event applies to both of us
+                This event applies to us
               </label>
             </div>
           </div>

@@ -205,7 +205,7 @@ const CalendarPage = ({ currentUser, onLogout }) => {
                                 e.stopPropagation();
                                 setSelectedEvent(event);
                               }}
-                              title={`${event.title} - ${event.user_name}${event.applies_to_both ? ' (Both)' : ''}${isMultiDay ? ` (${format(eventStart, 'MMM d')} - ${format(eventEnd, 'MMM d')})` : ''}`}
+                              title={`${event.title} - ${event.user_name}${event.applies_to_both ? ' (Us)' : ''}${isMultiDay ? ` (${format(eventStart, 'MMM d')} - ${format(eventEnd, 'MMM d')})` : ''}`}
                             >
                               <div className="event-content">
                                 <span className="event-title-text">{event.title}</span>
@@ -276,7 +276,7 @@ const CalendarPage = ({ currentUser, onLogout }) => {
                     <span className="legend-user-indicator">👨</span>
                     <span className="legend-user-indicator">👩‍🦰</span>
                   </div>
-                  <span>Both (Shared Events)</span>
+                  <span>Us (Shared Events)</span>
                 </div>
               </div>
             </div>
