@@ -101,15 +101,21 @@ const EventForm = ({ event, onSubmit, onCancel, onDelete, users, isEdit = false,
       return;
     }
 
-    const startDateTime = new Date(`${formData.start_date}T${formData.start_time}`);
-    const endDateTime = new Date(`${formData.end_date}T${formData.end_time}`);
+    // Create dates and preserve local time by adjusting for timezone offset
+    const startDateTime = new Date(`${formData.start_date}T${formData.start_time}:00`);
+    const endDateTime = new Date(`${formData.end_date}T${formData.end_time}:00`);
+    
+    // Adjust for timezone offset to preserve local time
+    const timezoneOffset = startDateTime.getTimezoneOffset() * 60000;
+    const startDateAdjusted = new Date(startDateTime.getTime() + timezoneOffset);
+    const endDateAdjusted = new Date(endDateTime.getTime() + timezoneOffset);
 
     const eventData = {
       title: formData.title.trim(),
       description: formData.description.trim(),
       event_type: formData.event_type,
-      start_date: startDateTime.toISOString(),
-      end_date: endDateTime.toISOString(),
+      start_date: startDateAdjusted.toISOString(),
+      end_date: endDateAdjusted.toISOString(),
       applies_to_both: formData.applies_to_both
     };
 
