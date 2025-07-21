@@ -17,12 +17,6 @@ echo "================================"
 # Stop backend service
 systemctl stop us-calendar
 
-# Backup existing database
-if [ -f "/var/www/us-calendar/backend/calendar.db" ]; then
-    echo "📋 Backing up existing database..."
-    cp /var/www/us-calendar/backend/calendar.db /var/www/us-calendar/backend/calendar.db.backup
-fi
-
 # Remove old database and recreate with correct schema
 echo "📋 Recreating database with correct schema..."
 rm -f /var/www/us-calendar/backend/calendar.db
@@ -36,6 +30,7 @@ cat > setup_db.py << 'EOF'
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///calendar.db'
@@ -60,20 +55,50 @@ class Event(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 with app.app_context():
+    # Drop all tables and recreate
+    db.drop_all()
     db.create_all()
-    # Create default user if none exists
-    if not User.query.first():
-        default_user = User(username='admin', password='admin123')
-        db.session.add(default_user)
-        db.session.commit()
-        print("✅ Database created with default user")
-    else:
-        print("✅ Database created successfully")
+    
+    # Create default user
+    default_user = User(username='admin', password='admin123')
+    db.session.add(default_user)
+    db.session.commit()
+    print("✅ Database created with default user")
 EOF
 
 # Run the database setup
 python setup_db.py
 rm setup_db.py
+
+# Test the database
+echo "📋 Testing database..."
+cat > test_db.py << 'EOF'
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///calendar.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
+
+with app.app_context():
+    try:
+        user = User.query.first()
+        if user:
+            print(f"✅ Database test successful - found user: {user.username}")
+        else:
+            print("❌ Database test failed - no users found")
+    except Exception as e:
+        print(f"❌ Database test failed: {e}")
+EOF
+
+python test_db.py
+rm test_db.py
 
 echo "✅ Database schema fixed"
 
@@ -110,6 +135,21 @@ if [ -L "/etc/apache2/sites-enabled/000-default.conf" ]; then
     echo "❌ Default site is enabled and may interfere"
     echo "📋 Disabling default site..."
     a2dissite 000-default.conf
+fi
+
+# Check for other conflicting sites
+echo "📋 Checking for other conflicting sites..."
+for site in /etc/apache2/sites-enabled/*; do
+    if [[ "$site" != "/etc/apache2/sites-enabled/us-calendar.conf" ]] && [[ "$site" != "/etc/apache2/sites-enabled/000-default-le-ssl.conf" ]]; then
+        echo "❌ Disabling conflicting site: $(basename "$site")"
+        a2dissite "$(basename "$site")" 2>/dev/null || true
+    fi
+done
+
+# Ensure our site is enabled
+if [ ! -L "/etc/apache2/sites-enabled/us-calendar.conf" ]; then
+    echo "📋 Enabling our site..."
+    a2ensite us-calendar.conf
 fi
 
 # Test Apache configuration
