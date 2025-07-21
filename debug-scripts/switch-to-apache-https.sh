@@ -38,6 +38,7 @@ a2enmod proxy_http
 a2enmod rewrite
 a2enmod ssl
 a2enmod headers
+a2enmod expires
 
 echo "✅ Apache installed and configured"
 
@@ -51,28 +52,6 @@ cat > /etc/apache2/sites-available/us-calendar.conf << 'EOF'
     ServerName carlevato.net
     ServerAlias www.carlevato.net
     DocumentRoot /var/www/us-calendar/frontend/build
-    
-    # Redirect all HTTP to HTTPS
-    RewriteEngine On
-    RewriteCond %{HTTPS} off
-    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-</VirtualHost>
-
-<VirtualHost *:443>
-    ServerName carlevato.net
-    ServerAlias www.carlevato.net
-    DocumentRoot /var/www/us-calendar/frontend/build
-    
-    # SSL Configuration (will be updated by certbot)
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/carlevato.net/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/carlevato.net/privkey.pem
-    
-    # Security headers
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-    Header always set X-Content-Type-Options nosniff
-    Header always set X-Frame-Options DENY
-    Header always set X-XSS-Protection "1; mode=block"
     
     # API proxy
     ProxyPreserveHost On
@@ -162,7 +141,7 @@ else
     exit 1
 fi
 
-echo ""
+# Set up SSL certificate
 echo "🔧 Step 7: Setting Up HTTPS with Let's Encrypt..."
 echo "================================"
 
@@ -179,10 +158,13 @@ fi
 echo "📋 Obtaining SSL certificate..."
 if certbot --apache -d carlevato.net -d www.carlevato.net --non-interactive --agree-tos --email admin@carlevato.net; then
     echo "✅ SSL certificate obtained successfully"
+    echo "🔄 Restarting Apache with SSL configuration..."
+    systemctl restart apache2
 else
     echo "❌ SSL certificate acquisition failed"
     echo "📋 This might be due to DNS issues or domain not pointing to this server"
     echo "📋 Continuing with HTTP for now..."
+    echo "📋 You can manually run: certbot --apache -d carlevato.net"
 fi
 
 echo ""
