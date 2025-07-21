@@ -1,24 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
-import LandingPage from './pages/LandingPage';
 import CalendarPage from './pages/CalendarPage';
+import LandingPage from './pages/LandingPage';
 import './App.css';
 
 // Configure axios base URL
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://carlevato.net/api' 
-  : 'http://localhost:5001/api';
-
-axios.defaults.baseURL = API_BASE_URL;
+axios.defaults.baseURL = 'https://carlevato.net/api';
 
 function App() {
-  const [currentUser, setCurrentUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    // Load users on app start
     const loadUsers = async () => {
       try {
         const response = await axios.get('/users');
@@ -43,46 +37,35 @@ function App() {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Loading...</p>
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'white'
+      }}>
+        <div>Loading...</div>
       </div>
     );
   }
 
+  // If user is selected, show calendar page
+  if (currentUser) {
+    return (
+      <CalendarPage 
+        currentUser={currentUser} 
+        onLogout={handleLogout}
+      />
+    );
+  }
+
+  // Show landing page
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route 
-            path="/" 
-            element={
-              currentUser ? (
-                <Navigate to="/calendar" replace />
-              ) : (
-                <LandingPage 
-                  users={users} 
-                  onUserSelect={handleUserSelect} 
-                />
-              )
-            } 
-          />
-          <Route 
-            path="/calendar" 
-            element={
-              currentUser ? (
-                <CalendarPage 
-                  currentUser={currentUser} 
-                  onLogout={handleLogout}
-                />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            } 
-          />
-        </Routes>
-      </div>
-    </Router>
+    <LandingPage 
+      users={users} 
+      onUserSelect={handleUserSelect} 
+    />
   );
 }
 
