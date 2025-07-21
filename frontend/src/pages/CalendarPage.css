@@ -359,7 +359,7 @@
   }
   
   .calendar-sidebar {
-    order: -1;
+    order: 1;
   }
 }
 
@@ -386,18 +386,23 @@
   }
   
   .calendar-controls {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
     padding: 0 15px;
   }
   
   .calendar-controls h2 {
     font-size: 1.5rem;
+    flex: 1;
+    text-align: center;
   }
   
   .calendar-controls .btn {
-    min-width: 120px;
+    min-width: 60px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
   }
   
   .calendar-layout {
@@ -490,6 +495,22 @@
   
   .calendar-controls {
     padding: 0 10px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .calendar-controls h2 {
+    font-size: 1.3rem;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .calendar-controls .btn {
+    min-width: 50px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
   }
   
   .header-content {
@@ -577,8 +598,23 @@
     font-size: 1.3rem;
   }
   
+  .calendar-controls {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+  }
+  
   .calendar-controls h2 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .calendar-controls .btn {
+    min-width: 45px;
+    padding: 5px 8px;
+    font-size: 0.75rem;
   }
   
   .calendar-day {
